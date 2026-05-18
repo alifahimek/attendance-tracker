@@ -1,106 +1,107 @@
-// Classes.jsx
 import { useState } from "react";
+import "./Classes.css";
 
-function Classes() {
+function Classes({ classes, setClasses }) {
 
-  // STATE — the list of all classes (array of objects)
-  const [classes, setClasses] = useState([]);
-
-  // STATE — the form (one object holds all three field values)
   const [form, setForm] = useState({ name: "", code: "", teacher: "" });
-
-  // STATE — validation error message
   const [error, setError] = useState("");
 
-  // ─── FUNCTIONS ───────────────────────────────────────────
-
   function handleChange(e) {
-    // e.target.name tells us WHICH input fired (name, code, or teacher)
-    // ...form spreads/copies all existing fields, then overrides just one
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
   function addClass() {
-    // Validation — stop early if required fields are empty
     if (!form.name || !form.code) {
       setError("Class name and code are required.");
       return;
     }
-
-    // Build the new class object
     const newClass = {
-      id: Date.now(),        // timestamp as a quick unique ID
+      id: Date.now(),
       name: form.name,
       code: form.code,
       teacher: form.teacher,
     };
-
-    // Add to array — spread old array + append new item
-    // Never do: classes.push(newClass) — that mutates state directly
     setClasses([...classes, newClass]);
-
-    // Reset the form back to empty
     setForm({ name: "", code: "", teacher: "" });
     setError("");
   }
 
   function deleteClass(id) {
-    // filter() returns a new array WITHOUT the item that matches id
     setClasses(classes.filter(c => c.id !== id));
   }
 
-  // ─── JSX ─────────────────────────────────────────────────
-
   return (
-    <div>
-      <h2>Classes</h2>
+    <div className="page-container">
+      <h2 className="page-title">Classes</h2>
 
-      {/* ADD FORM */}
-      <div>
-        {/* Using name= attribute so one handleChange works for all inputs */}
-        <input
-          name="name"
-          placeholder="Class name *"
-          value={form.name}
-          onChange={handleChange}
-        />
-        <input
-          name="code"
-          placeholder="Code *  e.g. MATH101"
-          value={form.code}
-          onChange={handleChange}
-        />
-        <input
-          name="teacher"
-          placeholder="Teacher (optional)"
-          value={form.teacher}
-          onChange={handleChange}
-        />
+      {/* ── ADD FORM ── */}
+      <div className="form-card">
+        <h3>Add new class</h3>
 
-        {/* Show error only when string is not empty */}
-        {error && <p style={{ color: "red" }}>{error}</p>}
+        <div className="form-row">
+          <div className="field">
+            <label>Class name *</label>
+            <input
+              name="name"
+              placeholder="Mathematics"
+              value={form.name}
+              onChange={handleChange}
+            />
+          </div>
 
-        <button onClick={addClass}>+ Add Class</button>
+          <div className="field">
+            <label>Code *</label>
+            <input
+              name="code"
+              placeholder="MATH101"
+              value={form.code}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="field">
+            <label>Teacher</label>
+            <input
+              name="teacher"
+              placeholder="Mr. Rajan"
+              value={form.teacher}
+              onChange={handleChange}
+            />
+          </div>
+
+          <button className="btn-add" onClick={addClass}>+ Add</button>
+        </div>
+
+        {error && <p className="form-error">{error}</p>}
       </div>
 
-      {/* CLASS LIST */}
-      {classes.length === 0 ? (
-        // Conditional render — shown when array is empty
-        <p>No classes yet. Add one above.</p>
-      ) : (
-        // .map() turns each object in the array into a row of JSX
-        // key={cls.id} is required — React uses it to track list items
-        classes.map(cls => (
-          <div key={cls.id}>
-            <span>{cls.name}</span>
-            <span>{cls.code}</span>
-            <span>{cls.teacher || "—"}</span>
+      {/* ── CLASS LIST ── */}
+      <div className="table-card">
+        <div className="table-header">
+          <span>Class name</span>
+          <span>Code</span>
+          <span>Teacher</span>
+          <span></span>
+        </div>
 
-            {/* Arrow function () => so it only runs on click, not on render */}
-            <button onClick={() => deleteClass(cls.id)}>Remove</button>
-          </div>
-        ))
-      )}
+        {classes.length === 0 ? (
+          <p className="empty-state">No classes yet. Add one above.</p>
+        ) : (
+          classes.map(cls => (
+            <div key={cls.id} className="table-row">
+              <span className="row-name">{cls.name}</span>
+              <span className="badge-code">{cls.code}</span>
+              <span className="row-teacher">{cls.teacher || "—"}</span>
+              <button
+                className="btn-remove"
+                onClick={() => deleteClass(cls.id)}
+              >
+                Remove
+              </button>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
